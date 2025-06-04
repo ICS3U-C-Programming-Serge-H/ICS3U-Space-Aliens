@@ -2,10 +2,9 @@
 # Created by: Serge Hamouche
 # Created on: March 24, 2025
 # This program is the Space Aliens program in python
+import constants
 import stage
 import ugame
-
-import constants
 
 
 def game_scene():
@@ -20,7 +19,9 @@ def game_scene():
     # sets the backround to image 0 in the image bank
     # and the sie (10x8 tiles of size 16x16)
 
-    ship = stage.Sprite(image_bank_sprites, 5, 75, constants.SCREEN_Y - (2 * constants.SPRITE_SIZE))
+    ship = stage.Sprite(
+        image_bank_sprites, 5, 75, constants.SCREEN_Y - (2 * constants.SPRITE_SIZE)
+    )
     # Sets the 77 tiles to the right and 66 tiles down.
 
     game = stage.Stage(ugame.display, 60)
@@ -48,13 +49,13 @@ def game_scene():
                 ship.move(ship.x + 1, ship.y)
             else:
                 ship.move(constants.SCREEN_X - constants.SPRITE_SIZE, ship.y)
-        
+
         if keys & ugame.K_LEFT:
             if ship.x >= 0:
                 ship.move(ship.x - 1, ship.y)
             else:
                 ship.move(0, ship.y)
-                
+
         if keys & ugame.K_UP:
             pass
         if keys & ugame.K_DOWN:
