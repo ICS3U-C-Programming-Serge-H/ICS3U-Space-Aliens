@@ -3,9 +3,9 @@
 # Created on: March 24, 2025
 # This program is the Space Aliens program in python
 
+import constants
 import stage
 import ugame
-import constants
 
 
 def menu_scene():
@@ -18,7 +18,9 @@ def menu_scene():
     text = []
     # Create the first text object for the studio name.
     # Set width, height, font (None for default), palette, and buffer (None for direct drawing).
-    text1 = stage.Text(width=29, height=12, font=None, palette=constants.RED_PALETTE, buffer=None)
+    text1 = stage.Text(
+        width=29, height=12, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
     # Move the text to a specific coordinate on the screen.
     text1.move(20, 10)
     # Set the actual text content.
@@ -27,7 +29,9 @@ def menu_scene():
     text.append(text1)
 
     # Create the second text object for the "PRESS START" message.
-    text2 = stage.Text(width=29, height=12, font=None, palette=constants.RED_PALETTE, buffer=None)
+    text2 = stage.Text(
+        width=29, height=12, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
     text2.move(40, 110)
     text2.text("PRESS START")
     text.append(text2)
