@@ -1,167 +1,168 @@
-#!/usr/bin/env python3
-# Created by: Serge Hamouche
-# Created on: March 24, 2025
-# This program is the Space Aliens program in python
-
-import constants
 import stage
 import ugame
+import time
+import random
+import constants
 
+def splash_scene():
+    # this function is the splash scene function
+    coin_sound = open("coin.wav", "rb")
+    sound = ugame.audio
+    sound.stop()
+    sound.mute(False)
+    sound.play(coin_sound)
+
+    image_bank_mt_background = stage.Bank.from_bmp16("mt_game_studio.bmp")
+
+    background = stage.Grid(image_bank_mt_background, constants.SCREEN_X, constants.SCREEN_Y)
+
+    background.tile(2, 2, 0)
+    background.tile(3, 2, 1)
+    background.tile(4, 2, 2)
+    background.tile(5, 2, 3)
+    background.tile(6, 2, 4)
+    background.tile(7, 2, 0)
+    background.tile(2, 3, 0)
+    background.tile(3, 3, 5)
+    background.tile(4, 3, 6)
+    background.tile(5, 3, 7)
+    background.tile(6, 3, 8)
+    background.tile(7, 3, 0)
+    background.tile(2, 4, 0)
+    background.tile(3, 4, 9)
+    background.tile(4, 4, 10)
+    background.tile(5, 4, 11)
+    background.tile(6, 4, 12)
+    background.tile(7, 4, 0)
+    background.tile(2, 5, 0)
+    background.tile(3, 5, 0)
+    background.tile(4, 5, 13)
+    background.tile(5, 5, 14)
+    background.tile(6, 5, 0)
+    background.tile(7, 5, 0)
+
+    game = stage.Stage(ugame.display, constants.FPS)
+    game.layers = [background]
+    game.render_block()
+
+    while True:
+        time.sleep(2.0)
+        menu_scene()
 
 def menu_scene():
-    # This function is the menu scene of the game.
-
-    # Load image bank for the background from a BMP file.
     image_bank_background = stage.Bank.from_bmp16("space_aliens_background.bmp")
 
-    # Create a list to hold text objects.
     text = []
-    # Create the first text object for the studio name.
-    # Set width, height, font (None for default), palette, and buffer (None for direct drawing).
-    text1 = stage.Text(
-        width=29, height=12, font=None, palette=constants.RED_PALETTE, buffer=None
-    )
-    # Move the text to a specific coordinate on the screen.
+    text1 = stage.Text(width=29, height=12, font=None, palette=constants.RED_PALETTE, buffer=None)
     text1.move(20, 10)
-    # Set the actual text content.
     text1.text("Gugu Game Studios")
-    # Add the text object to the list.
     text.append(text1)
 
-    # Create the second text object for the "PRESS START" message.
-    text2 = stage.Text(
-        width=29, height=12, font=None, palette=constants.RED_PALETTE, buffer=None
-    )
+    text2 = stage.Text(width=29, height=12, font=None, palette=constants.RED_PALETTE, buffer=None)
     text2.move(40, 110)
     text2.text("PRESS START")
     text.append(text2)
 
-    # Create the background grid using the loaded image bank, with dimensions 10x8 tiles.
     background = stage.Grid(image_bank_background, 10, 8)
 
-    # Initialize the game stage with the display and set the frame rate to 60 FPS.
     game = stage.Stage(ugame.display, 60)
-    # Set the layers for rendering: text objects on top of the background.
     game.layers = text + [background]
-    # Render the initial block of layers to the screen.
     game.render_block()
 
-    # Main loop for the menu scene.
     while True:
-        # Get the current state of pressed buttons.
         keys = ugame.buttons.get_pressed()
 
-        # Check if the START button is pressed.
         if keys & ugame.K_START != 0:
-            # If START is pressed, transition to the game scene.
             game_scene()
 
-        # Tick the game clock to maintain the frame rate.
         game.tick()
 
-
 def game_scene():
-    # This function is the main game scene.
-
-    # Load image banks for the background and sprites.
     image_bank_background = stage.Bank.from_bmp16("space_aliens_background.bmp")
     image_bank_sprites = stage.Bank.from_bmp16("space_aliens.bmp")
 
-    # Initialize button states for debouncing (tracking presses, releases).
     a_button = constants.button_state["button_up"]
     b_button = constants.button_state["button_up"]
     start_button = constants.button_state["button_up"]
     select_button = constants.button_state["button_up"]
 
-    # Prepare sound for firing.
     pew_sound = open("pew.wav", "rb")
     sound = ugame.audio
-    sound.stop()  # Stop any currently playing audio.
-    sound.mute(False)  # Unmute the audio.
+    sound.stop()
+    sound.mute(False)
 
-    # Create the background grid.
-    background = stage.Grid(image_bank_background, 10, 8)
+    background = stage.Grid(image_bank_background, constants.SCREEN_X, constants.SCREEN_Y)
+    for x_location in range(constants.SCREEN_GRID_X):
+        for y_location in range(constants.SCREEN_GRID_Y):
+            tile_picked = random.randint(1, 3)
+            background.tile(x_location, y_location, tile_picked)
 
-    # Create the player ship sprite.
-    # Image bank, frame number (5), x-coordinate (75), y-coordinate (near bottom of screen).
-    ship = stage.Sprite(
-        image_bank_sprites, 5, 75, constants.SCREEN_Y - (2 * constants.SPRITE_SIZE)
-    )
+    ship = stage.Sprite(image_bank_sprites, 5, 75, constants.SCREEN_Y - (2 * constants.SPRITE_SIZE))
 
-    # Create the alien sprite.
-    # Image bank, frame number (9), x-coordinate (centered horizontally), y-coordinate (near top).
-    alien = stage.Sprite(
-        image_bank_sprites,
-        9,
-        int(constants.SCREEN_X / 2 - constants.SPRITE_SIZE / 2),
-        16,
-    )
+    alien = stage.Sprite(image_bank_sprites, 9,
+                        int(constants.SCREEN_X / 2 - constants.SPRITE_SIZE / 2), 16)
 
-    # Initialize the game stage.
+    lasers = []
+    for laser_number in range(constants.TOTAL_NUMBER_OF_LASERS):
+        a_single_laser = stage.Sprite(image_bank_sprites, 10,
+                                      constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+        lasers.append(a_single_laser)
+
     game = stage.Stage(ugame.display, 60)
-    # Set the layers for rendering: background first, then alien, then ship (foreground).
-    game.layers = [background] + [alien] + [ship]
-    # Render the initial block of layers.
+    game.layers = lasers + [ship] + [alien] + [background]
     game.render_block()
 
-    # Main loop for the game scene.
     while True:
-        # Get the current state of pressed buttons.
         keys = ugame.buttons.get_pressed()
 
-        # Handle A button press logic for firing.
-        if keys & ugame.K_O != 0:  # Check if the A button (K_O) is currently held down.
+        if keys & ugame.K_O != 0:
             if a_button == constants.button_state["button_up"]:
-                # If button was up and is now pressed, set state to "just_pressed".
                 a_button = constants.button_state["button_just_pressed"]
             elif a_button == constants.button_state["button_just_pressed"]:
-                # If button was just pressed and is still held, set state to "still_pressed".
                 a_button = constants.button_state["button_still_pressed"]
         else:
-            # If the A button is not currently held down.
             if a_button == constants.button_state["button_still_pressed"]:
-                # If button was still pressed and is now released, set state to "released".
                 a_button = constants.button_state["button_released"]
             else:
-                # Otherwise, the button is fully "up".
                 a_button = constants.button_state["button_up"]
 
-        # B, Start, Select button handling (currently placeholders).
         if keys & ugame.K_X != 0:
-            pass  # No action defined for B button.
+            pass
         if keys & ugame.K_START != 0:
-            print("Start")  # Debugging: prints "Start" to console.
+            print("Start")
         if keys & ugame.K_SELECT != 0:
-            print("Select")  # Debugging: prints "Select" to console.
+            print("Select")
 
-        # Move ship right with boundary check.
-        if keys & ugame.K_RIGHT != 0:
-            # Check if the ship is within the screen bounds to move right.
+        if keys & ugame.K_RIGHT:
             if ship.x < (constants.SCREEN_X - constants.SPRITE_SIZE):
                 ship.move(ship.x + constants.SPRITE_MOVEMENT_SPEED, ship.y)
 
-        # Move ship left with boundary check.
-        if keys & ugame.K_LEFT != 0:
-            # Check if the ship is within the screen bounds to move left.
+        if keys & ugame.K_LEFT:
             if ship.x > 0:
                 ship.move(ship.x - constants.SPRITE_MOVEMENT_SPEED, ship.y)
 
-        # Placeholder for vertical controls (currently unused).
-        if keys & ugame.K_UP != 0:
+        if keys & ugame.K_UP:
             pass
-        if keys & ugame.K_DOWN != 0:
+        if keys & ugame.K_DOWN:
             pass
 
-        # Play shooting sound if A button was just pressed.
         if a_button == constants.button_state["button_just_pressed"]:
-            sound.play(pew_sound)
+            for laser_number in range(len(lasers)):
+                if lasers[laser_number].x < 0:
+                    lasers[laser_number].move(ship.x, ship.y)
+                    sound.play(pew_sound)
+                    break
 
-        # Redraw only the sprites to update their positions efficiently.
-        game.render_sprites([ship] + [alien])
-        # Tick the game clock to maintain the frame rate.
+        for laser_number in range(len(lasers)):
+            if lasers[laser_number].x > 0:
+                lasers[laser_number].move(lasers[laser_number].x,
+                                          lasers[laser_number].y - constants.LASER_SPEED)
+                if lasers[laser_number].y < constants.OFF_TOP_SCREEN:
+                    lasers[laser_number].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+
+        game.render_sprites(lasers + [ship] + [alien])
         game.tick()
 
-
 if __name__ == "__main__":
-    # Call the menu scene to start the game when the script is executed.
-    menu_scene()
+    splash_scene()
+    
