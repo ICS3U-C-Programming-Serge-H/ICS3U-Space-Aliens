@@ -1,8 +1,10 @@
+import random
+import time
+
+import constants
 import stage
 import ugame
-import time
-import random
-import constants
+
 
 def splash_scene():
     # this function is the splash scene function
@@ -14,7 +16,9 @@ def splash_scene():
 
     image_bank_mt_background = stage.Bank.from_bmp16("mt_game_studio.bmp")
 
-    background = stage.Grid(image_bank_mt_background, constants.SCREEN_X, constants.SCREEN_Y)
+    background = stage.Grid(
+        image_bank_mt_background, constants.SCREEN_X, constants.SCREEN_Y
+    )
 
     background.tile(2, 2, 0)
     background.tile(3, 2, 1)
@@ -49,16 +53,21 @@ def splash_scene():
         time.sleep(2.0)
         menu_scene()
 
+
 def menu_scene():
     image_bank_background = stage.Bank.from_bmp16("space_aliens_background.bmp")
 
     text = []
-    text1 = stage.Text(width=29, height=12, font=None, palette=constants.RED_PALETTE, buffer=None)
+    text1 = stage.Text(
+        width=29, height=12, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
     text1.move(20, 10)
     text1.text("Gugu Game Studios")
     text.append(text1)
 
-    text2 = stage.Text(width=29, height=12, font=None, palette=constants.RED_PALETTE, buffer=None)
+    text2 = stage.Text(
+        width=29, height=12, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
     text2.move(40, 110)
     text2.text("PRESS START")
     text.append(text2)
@@ -77,6 +86,7 @@ def menu_scene():
 
         game.tick()
 
+
 def game_scene():
     image_bank_background = stage.Bank.from_bmp16("space_aliens_background.bmp")
     image_bank_sprites = stage.Bank.from_bmp16("space_aliens.bmp")
@@ -91,21 +101,30 @@ def game_scene():
     sound.stop()
     sound.mute(False)
 
-    background = stage.Grid(image_bank_background, constants.SCREEN_X, constants.SCREEN_Y)
+    background = stage.Grid(
+        image_bank_background, constants.SCREEN_X, constants.SCREEN_Y
+    )
     for x_location in range(constants.SCREEN_GRID_X):
         for y_location in range(constants.SCREEN_GRID_Y):
             tile_picked = random.randint(1, 3)
             background.tile(x_location, y_location, tile_picked)
 
-    ship = stage.Sprite(image_bank_sprites, 5, 75, constants.SCREEN_Y - (2 * constants.SPRITE_SIZE))
+    ship = stage.Sprite(
+        image_bank_sprites, 5, 75, constants.SCREEN_Y - (2 * constants.SPRITE_SIZE)
+    )
 
-    alien = stage.Sprite(image_bank_sprites, 9,
-                        int(constants.SCREEN_X / 2 - constants.SPRITE_SIZE / 2), 16)
+    alien = stage.Sprite(
+        image_bank_sprites,
+        9,
+        int(constants.SCREEN_X / 2 - constants.SPRITE_SIZE / 2),
+        16,
+    )
 
     lasers = []
     for laser_number in range(constants.TOTAL_NUMBER_OF_LASERS):
-        a_single_laser = stage.Sprite(image_bank_sprites, 10,
-                                      constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+        a_single_laser = stage.Sprite(
+            image_bank_sprites, 10, constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y
+        )
         lasers.append(a_single_laser)
 
     game = stage.Stage(ugame.display, 60)
@@ -155,14 +174,18 @@ def game_scene():
 
         for laser_number in range(len(lasers)):
             if lasers[laser_number].x > 0:
-                lasers[laser_number].move(lasers[laser_number].x,
-                                          lasers[laser_number].y - constants.LASER_SPEED)
+                lasers[laser_number].move(
+                    lasers[laser_number].x,
+                    lasers[laser_number].y - constants.LASER_SPEED,
+                )
                 if lasers[laser_number].y < constants.OFF_TOP_SCREEN:
-                    lasers[laser_number].move(constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y)
+                    lasers[laser_number].move(
+                        constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y
+                    )
 
         game.render_sprites(lasers + [ship] + [alien])
         game.tick()
 
+
 if __name__ == "__main__":
     splash_scene()
-    
